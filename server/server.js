@@ -6,7 +6,6 @@ const app = express()
 const server = http.createServer(app)
 const io = socketIO(server) // socket io使用
 
-
 // 環境変数
 const port = process.env.PORT || 3000;
 
@@ -18,11 +17,21 @@ app.use(express.static(publicPath))
 io.on('connection', (socket) => {
   console.log('new user connectedn...')
 
+  socket.emit('newEmail', {
+    form: 'mike@example.com',
+    ttl: 'hogeeeee',
+    creatAt: 123
+  });
+
+  socket.on('createMsg', (msg) => {
+    console.log('new message', msg)
+  })
+
   socket.on('disconnect', () => {
     console.log('user was disconnected...')
   })
 })
 
 server.listen(port, () =>{
-  console.log('Server is starting//////')
+  console.log('======= Server is starting ========')
 })
