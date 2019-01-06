@@ -15,7 +15,7 @@ const publicPath = path.join(__dirname, '../public')
 app.use(express.static(publicPath))
 
 // util関数
-const { generateMessage } = require('./utils/message.js')
+const { generateMessage, generateLocationMessage } = require('./utils/message.js')
 
 // socket io
 io.on('connection', (socket) => {
@@ -27,11 +27,10 @@ io.on('connection', (socket) => {
   // 新規参加者から、既存のメンバーに送信されるメッセージ
   socket.broadcast.emit('newMessage', generateMessage('Admin', 'New user joined'))
 
-  socket.on('createMessage', (message, callback) => {
-    console.log('new message', message)
-    io.emit('newMessage', generateMessage(message.from, message.text))
-    callback('this is from server')
-    // socket.broadcast.emit('newMessage', generateMessage(message.from, message.text))
+
+  // クライアントでgeolocationのイベント発生に対応
+  socket.on('createLocationMessage', (coords) => {
+    io.emit('newLocationMessage', generateLocationMessage('Admin', coords.lat, coords.lng))
   })
 
   socket.on('disconnect', () => {

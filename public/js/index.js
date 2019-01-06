@@ -2,6 +2,11 @@ var socket = io()
 socket.on('connect', function() {
   console.log('connected to server')
 })
+
+socket.on('disconnect', function() {
+  console.log('disconnected from server')
+})
+
 socket.on('newMessage', function(message) {
   console.log('newMessage', message)
 
@@ -10,17 +15,7 @@ socket.on('newMessage', function(message) {
   $('#messages').append(li)
 })
 
-socket.on('disconnect', function() {
-  console.log('disconnected from server')
-})
-
-socket.emit('createMessage', {
-  from: 'client',
-  text: 'this message from client'
-}, function(data) {
-  console.log('server got it', data)
-})
-
+// formイベント
 $('#message-form').on('submit', function(e) {
   e.preventDefault()
 
@@ -31,3 +26,33 @@ $('#message-form').on('submit', function(e) {
 
   })
 })
+
+// geolocation
+var locationButton = $('#send-location')
+locationButton.on('click', function () {
+  if ( !navigator.geolocation ) {
+    return alert('Geolocation not supported by your browser')
+  }
+
+  navigator.geolocation.getCurrentPosition(function (position) {
+    socket.emit('createLocationMessage', {
+      lat: position.coords.latitude,
+      lng: position.coords.longitude
+    })
+  }, function () {
+    alert('unable to fetch loation')
+  })
+})
+
+// クライアント側でのnewLocationMessageイベントに対応
+socket.on('newLocationMessage', function (message) {
+  var li = $('<li></li>')
+  var a = $('<a target="_blank">My current location</a>')
+
+  li.text(`${message.from}: `)
+  a.attr('href', message.url)
+  li.append(a)
+
+  $('#messages').append(li)
+})
+
