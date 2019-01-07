@@ -27,6 +27,13 @@ io.on('connection', (socket) => {
   // 新規参加者から、既存のメンバーに送信されるメッセージ
   socket.broadcast.emit('newMessage', generateMessage('Admin', 'New user joined'))
 
+  // クライアントで`createMessage`イベントが起きた際に
+  // サーバ側で`newmessage`イベントを発生させ、クライアント側で書き込み実施
+  // callbackを引数にとって、実行している
+  socket.on('createMessage', (message, callback) => {
+    io.emit('newMessage', generateMessage(message.from, message.text))
+    callback()
+  })
 
   // クライアントでgeolocationのイベント発生に対応
   socket.on('createLocationMessage', (coords) => {
