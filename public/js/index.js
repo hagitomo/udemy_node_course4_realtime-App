@@ -1,3 +1,19 @@
+function scrollToBottom () {
+  // ページ下部を表示しているとき、新規メッセージが来た場合に、自動スクロール
+  var messages = $('#messages')
+  var newMessage = messages.children('li:last-child')
+
+  var clientHeight = messages.prop('clientHeight') // window高さ
+  var scrollTop = messages.prop('scrollTop') // 画面上部まで の高さ
+  var scrollHeight = messages.prop('scrollHeight') // メッセージ全体の高さ
+  var newMessageHeight = newMessage.innerHeight() // 最新メッセージの高さ
+  var lastMessageHeight = newMessage.prev().innerHeight() // 最新より一つ前のメッセージの高さ
+
+  if (clientHeight + scrollTop + newMessageHeight + lastMessageHeight >= scrollHeight) {
+    messages.scrollTop(scrollHeight);
+  }
+}
+
 var socket = io()
 socket.on('connect', function() {
   console.log('connected to server')
@@ -19,6 +35,7 @@ socket.on('newMessage', function(message) {
     })
 
     $('#messages').append(html)
+    scrollToBottom()
 })
 
 // formイベント
@@ -74,5 +91,6 @@ socket.on('newLocationMessage', function (message) {
   })
 
   $('#messages').append(html)
+  scrollToBottom()
 })
 
