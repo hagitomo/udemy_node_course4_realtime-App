@@ -49,15 +49,23 @@ io.on('connection', (socket) => {
 
   // クライアントで`createMessage`イベントが起きた際に
   // サーバ側で`newmessage`イベントを発生させ、クライアント側で書き込み実施
-  // callbackを引数にとって、実行している
   socket.on('createMessage', (message, callback) => {
-    io.emit('newMessage', generateMessage(message.from, message.text))
+    var user = users.getUser(socket.id)
+
+    // ユーザーが存在 & 空のメッセージではない
+    if ( user && isRealString( message.text ) ) {
+      io.to(user.room).emit('newMessage', generateMessage(user.name, message.text))
+    }
+
     callback()
   })
 
   // クライアントでgeolocationのイベント発生に対応
   socket.on('createLocationMessage', (coords) => {
-    io.emit('newLocationMessage', generateLocationMessage('Admin', coords.lat, coords.lng))
+    var user = users.getUser(socket.id)
+    if ( user ) {
+      io.to(user.room).emit('newLocationMessage', generateLocationMessage(user.name, coords.lat, coords.lng))
+    }
   })
 
   // 切断されたとき
