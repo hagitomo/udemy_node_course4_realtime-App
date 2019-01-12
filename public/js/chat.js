@@ -15,6 +15,7 @@ function scrollToBottom () {
 }
 
 var socket = io()
+
 // 接続されたとき
 socket.on('connect', function() {
   // index.htmlから移動してきた際に、パラメータ取得
@@ -33,10 +34,23 @@ socket.on('connect', function() {
   })
 })
 
+// 切断されたとき
 socket.on('disconnect', function() {
   console.log('disconnected from server')
 })
 
+// ユーザーリストの更新
+socket.on('userUpdateList', function(users) {
+  var ol = $('<ol></ol>')
+
+  users.forEach(function (user) {
+    ol.append($('<li></li>').text(user))
+  })
+
+  $('#users').html(ol)
+})
+
+// メッセージ作成
 socket.on('newMessage', function(message) {
     var formattedTime = moment(message.createdAt).format('h:mm a')
 
