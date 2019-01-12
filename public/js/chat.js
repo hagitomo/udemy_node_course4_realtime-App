@@ -1,5 +1,5 @@
+// ページ下部を表示しているとき、新規メッセージが来た場合に、自動スクロール
 function scrollToBottom () {
-  // ページ下部を表示しているとき、新規メッセージが来た場合に、自動スクロール
   var messages = $('#messages')
   var newMessage = messages.children('li:last-child')
 
@@ -15,8 +15,22 @@ function scrollToBottom () {
 }
 
 var socket = io()
+// 接続されたとき
 socket.on('connect', function() {
-  console.log('connected to server')
+  // index.htmlから移動してきた際に、パラメータ取得
+  var params = $.deparam(window.location.search)
+
+  // joinイベント発行
+  socket.emit('join', params, function (err) {
+
+    if( err ) {
+      // 入力されたパラメータにエラー
+      alert(err)
+      window.location.href = '/'
+    } else {
+      console.log('no err')
+    }
+  })
 })
 
 socket.on('disconnect', function() {

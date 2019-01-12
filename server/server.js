@@ -16,6 +16,7 @@ app.use(express.static(publicPath))
 
 // util関数
 const { generateMessage, generateLocationMessage } = require('./utils/message.js')
+const { isRealString } = require('./utils/validation.js')
 
 // socket io
 io.on('connection', (socket) => {
@@ -26,6 +27,16 @@ io.on('connection', (socket) => {
 
   // 新規参加者から、既存のメンバーに送信されるメッセージ
   socket.broadcast.emit('newMessage', generateMessage('Admin', 'New user joined'))
+
+  // chat.htmlに新規参加
+  socket.on('join', (params, callback) => {
+    // name,roomが入力されていない・不正な場合
+    if ( !isRealString(params.name) || !isRealString(params.room) ) {
+      callback('Name and room name area required')
+    }
+
+    callback()
+  })
 
   // クライアントで`createMessage`イベントが起きた際に
   // サーバ側で`newmessage`イベントを発生させ、クライアント側で書き込み実施
